@@ -57,6 +57,11 @@ EXTERNAL_LIBS += -levent -lpthread
 if USE_SCRIBE_HDFS
   EXTERNAL_LIBS += -lhdfs -ljvm
 endif
+if USE_SCRIBE_MAPRFS
+  EXTERNAL_LIBS += -L/opt/mapr/lib -lMapRClient
+  CPPFLAGS += -I$(hadoop_home)/src/c++/libhdfs
+  LDFLAGS += -Wl,--allow-shlib-undefined -L/opt/mapr/lib -lMapRClient
+endif
 
 # Section 2 ############################################################################
 # Set common flags recognized by automake.
@@ -102,6 +107,9 @@ endif
 bin_PROGRAMS = scribed
 scribed_SOURCES = store.cpp store_queue.cpp conf.cpp file.cpp conn_pool.cpp scribe_server.cpp network_dynamic_config.cpp dynamic_bucket_updater.cpp $(FB_SOURCES) $(ENV_SOURCES)
 if USE_SCRIBE_HDFS
+  scribed_SOURCES += HdfsFile.cpp
+endif
+if USE_SCRIBE_MAPRFS
   scribed_SOURCES += HdfsFile.cpp
 endif
 scribed_LDADD = $(EXTERNAL_LIBS) $(INTERNAL_LIBS)

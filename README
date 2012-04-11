@@ -123,6 +123,9 @@ Examples:
 # If the build process cannot find your Hadoop/Jvm installs, you may need to specify them manually:
 ./configure --with-hadooppath=/usr/local/hadoop --enable-hdfs CPPFLAGS="-I/usr/local/java/include -I/usr/local/java/include/linux" LDFLAGS="-ljvm -lhdfs"
 
+# To build scribe with MapR Hadoop support
+./configure --enable-maprfs --with-hadooppath=/opt/mapr/hadoop/hadoop-0.20.2
+
 # To set thrift home to a non-default location
 ./configure --with-thriftpath=/myhome/local/thrift
 

@@ -219,7 +219,11 @@ bool HdfsFile::createSymlink(std::string oldpath, std::string newpath) {
  * specified cluster
  */
 hdfsFS HdfsFile::connectToPath(const char* uri) {
+#ifdef USE_SCRIBE_MAPRFS
+  const char proto[] = "maprfs://";
+#else
   const char proto[] = "hdfs://";
+#endif
  
   if (strncmp(proto, uri, strlen(proto)) != 0) {
     // uri doesn't start with hdfs:// -> use default:0, which is special
@@ -229,16 +233,28 @@ hdfsFS HdfsFile::connectToPath(const char* uri) {
  
   // Skip the hdfs:// part.
   uri += strlen(proto);
+  long port = 0;
+
   // Find the next colon.
   const char* colon = strchr(uri, ':');
   // No ':' or ':' is the last character.
   if (!colon || !colon[1]) {
+#ifdef USE_SCRIBE_MAPRFS
+    port = 7222; // Default MapR port
+    colon = strchr(uri, '/');
+    if (!colon || !colon[1]) // Incorrect URI
+      return NULL;
+    if (colon == uri)
+      return hdfsConnectNewInstance("default", 0);
+#else
     LOG_OPER("[hdfs] Missing port specification: \"%s\"", uri);
     return NULL;
+#endif
+  } else {
+    char* endptr = NULL;
+    port = strtol(colon + 1, &endptr, 10);
   }
- 
-  char* endptr = NULL;
-  const long port = strtol(colon + 1, &endptr, 10);
+
   if (port < 0) {
     LOG_OPER("[hdfs] Invalid port specification (negative): \"%s\"", uri);
     return NULL;
@@ -250,7 +266,7 @@ hdfsFS HdfsFile::connectToPath(const char* uri) {
   char* const host = (char*) malloc(colon - uri + 1);
   memcpy((char*) host, uri, colon - uri);
   host[colon - uri] = '\0';
- 
+
   LOG_OPER("[hdfs] Before hdfsConnectNewInstance(%s, %li)", host, port);
   hdfsFS fs = hdfsConnectNewInstance(host, port);
   LOG_OPER("[hdfs] After hdfsConnectNewInstance");

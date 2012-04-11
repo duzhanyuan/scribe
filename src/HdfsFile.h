@@ -7,7 +7,7 @@
 #ifndef HDFS_FILE_H
 #define HDFS_FILE_H
 
-#ifdef USE_SCRIBE_HDFS
+#if defined(USE_SCRIBE_HDFS) || defined(USE_SCRIBE_MAPRFS)
 #include "hdfs.h"
 
 class HdfsFile : public FileInterface {
@@ -84,6 +84,6 @@ class HdfsFile : public FileInterface {
   bool createDirectory(std::string path) { return false; };
   bool createSymlink(std::string newpath, std::string oldpath) { return false; };
 };
-#endif // USE_SCRIBE_HDFS
+#endif // USE_SCRIBE_HDFS || USE_SCRIBE_MAPRFS
 
 #endif // HDFS_FILE_H

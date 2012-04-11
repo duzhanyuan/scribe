@@ -35,7 +35,7 @@ boost::shared_ptr<FileInterface> FileInterface::createFileInterface(const std::s
                                                                     bool framed) {
   if (0 == type.compare("std")) {
     return shared_ptr<FileInterface>(new StdFile(name, framed));
-  } else if (0 == type.compare("hdfs")) {
+  } else if ((0 == type.compare("hdfs")) || (0 == type.compare("maprfs"))) {
     return shared_ptr<FileInterface>(new HdfsFile(name));
   } else {
     return shared_ptr<FileInterface>();
